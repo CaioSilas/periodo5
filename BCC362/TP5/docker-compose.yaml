@@ -1,0 +1,27 @@
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      
+  kafka:
+    image: confluentinc/cp-kafka
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+
+  produtor:
+    build:
+      context: ./app/produtor
+    depends_on:
+      - zookeeper
+      - kafka
+
+  consumidor:
+    build:
+      context: ./app/consumidor
+    depends_on:
+      - zookeeper
+      - kafka

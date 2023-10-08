@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit-servico
+  labels:
+    app: rabbit-app
+spec:
+  selector:
+    app: rabbit-app
+  ports:
+    - name: rabbit-servico
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: rabbit-web
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rabbit-app
+  labels:
+    app: rabbit-app
+spec:
+  containers:
+  - name: rabbit-app
+    image: rabbitmq:3.12-management
+    ports:
+        - containerPort: 5672
+        - containerPort: 15672
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-tp4
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: deployment-tp4
+  template:
+    metadata:
+      labels:
+        app: deployment-tp4
+    spec:
+      containers:
+      - name: produtor-app
+        image: produtor_tp4:1.0
+        env:
+          - name: R_HOST
+            value: rabbit-servico
+      - name: consumidor-app
+        image: consumidor_tp4:1.0
+        env:
+          - name: R_HOST
+            value: rabbit-servico 
